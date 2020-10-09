@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:space_invaders/Utilities/GamePieces.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'home_page';
@@ -7,6 +8,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  GamePieces game = GamePieces();
+
+  Color color;
+
   @override
   Widget build(BuildContext context) {
     final _height = MediaQuery.of(context).size.height;
@@ -24,12 +29,24 @@ class _HomePageState extends State<HomePage> {
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 20),
                   itemBuilder: (BuildContext context, int index) {
+                    if (game.alienPosition.contains(index)) {
+                      color = Colors.green;
+                    } else if (game.playerPosition.contains(index) ||
+                        game.shieldPosition.contains(index)) {
+                      if (game.playerPosition[0] == index) {
+                        color = Colors.red;
+                      } else {
+                        color = Colors.white;
+                      }
+                    } else {
+                      color = Colors.grey[900];
+                    }
                     return Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(3.5)),
-                          color: Colors.grey[900],
+                          color: color,
                         ),
                       ),
                     );
