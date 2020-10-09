@@ -29,7 +29,7 @@ class GamePieces {
     playerStartPos + 20 + 3,
   ];
 
-  static int shieldStartPos = 402;
+  static int shieldStartPos = 382;
   List<int> shieldPosition = [
     shieldStartPos,
     shieldStartPos + 1,

@@ -10,7 +10,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  GamePieces game = new GamePieces();
+  static GamePieces game = new GamePieces();
 
   Color color;
 
@@ -18,6 +18,8 @@ class _HomePageState extends State<HomePage> {
   bool toMoveLeft = false;
   bool toMoveRight = false;
   bool toFire = false;
+
+  int alienFirePos;
 
   void updateGame() {
     setState(() {
@@ -32,6 +34,15 @@ class _HomePageState extends State<HomePage> {
         isGoingLeft = false;
       } else if ((game.alienPosition.last + 2) % 20 == 0) {
         isGoingLeft = true;
+      }
+    });
+  }
+
+  void alienFire() {
+    setState(() {
+      alienFirePos += 20;
+      if (alienFirePos > 540) {
+        alienFirePos = game.alienPosition[0];
       }
     });
   }
@@ -54,6 +65,13 @@ class _HomePageState extends State<HomePage> {
 
   void startGame() {
     const duration = const Duration(milliseconds: 700);
+    const fireDuration = const Duration(milliseconds: 200);
+    alienFirePos = game.alienPosition[0];
+
+    Timer.periodic(fireDuration, (Timer timer) {
+      alienFire();
+    });
+
     Timer.periodic(duration, (Timer timer) {
       updateGame();
       if (toMoveLeft) {
@@ -84,7 +102,8 @@ class _HomePageState extends State<HomePage> {
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 20),
                   itemBuilder: (BuildContext context, int index) {
-                    if (game.alienPosition.contains(index)) {
+                    if (game.alienPosition.contains(index) ||
+                        alienFirePos == index) {
                       color = Colors.green;
                     } else if (game.playerPosition.contains(index) ||
                         game.shieldPosition.contains(index)) {
