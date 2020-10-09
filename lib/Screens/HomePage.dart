@@ -15,6 +15,10 @@ class _HomePageState extends State<HomePage> {
   Color color;
 
   bool isGoingLeft = true;
+  bool toMoveLeft = false;
+  bool toMoveRight = false;
+  bool toFire = false;
+
   void updateGame() {
     setState(() {
       game = new GamePieces();
@@ -24,10 +28,26 @@ class _HomePageState extends State<HomePage> {
       } else {
         GamePieces.alienStartPos += 1;
       }
-      if (GamePieces.alienStartPos % 20 == 0) {
+      if ((game.alienPosition[0] - 1) % 20 == 0) {
         isGoingLeft = false;
       } else if ((game.alienPosition.last + 2) % 20 == 0) {
         isGoingLeft = true;
+      }
+    });
+  }
+
+  void moveLeft() {
+    setState(() {
+      if (game.playerPosition[0] % 20 != 0) {
+        GamePieces.playerStartPos -= 1;
+      }
+    });
+  }
+
+  void moveRight() {
+    setState(() {
+      if ((game.playerPosition.last + 1) % 20 != 0) {
+        GamePieces.playerStartPos += 1;
       }
     });
   }
@@ -36,6 +56,14 @@ class _HomePageState extends State<HomePage> {
     const duration = const Duration(milliseconds: 700);
     Timer.periodic(duration, (Timer timer) {
       updateGame();
+      if (toMoveLeft) {
+        moveLeft();
+        toMoveLeft = false;
+      }
+      if (toMoveRight) {
+        moveRight();
+        toMoveRight = false;
+      }
     });
   }
 
@@ -91,17 +119,27 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
-                  Text(
-                    'Left',
-                    style: TextStyle(color: Colors.white),
+                  GestureDetector(
+                    onTap: () {
+                      toMoveLeft = true;
+                    },
+                    child: Text(
+                      'Left',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   Text(
                     'Up',
                     style: TextStyle(color: Colors.white),
                   ),
-                  Text(
-                    'Right',
-                    style: TextStyle(color: Colors.white),
+                  GestureDetector(
+                    onTap: () {
+                      toMoveRight = true;
+                    },
+                    child: Text(
+                      'Right',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   )
                 ],
               ),
