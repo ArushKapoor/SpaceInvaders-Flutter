@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:space_invaders/Utilities/GamePieces.dart';
 
@@ -8,9 +10,34 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  GamePieces game = GamePieces();
+  GamePieces game = new GamePieces();
 
   Color color;
+
+  bool isGoingLeft = true;
+  void updateGame() {
+    setState(() {
+      game = new GamePieces();
+
+      if (isGoingLeft) {
+        GamePieces.alienStartPos -= 1;
+      } else {
+        GamePieces.alienStartPos += 1;
+      }
+      if (GamePieces.alienStartPos % 20 == 0) {
+        isGoingLeft = false;
+      } else if ((game.alienPosition.last + 2) % 20 == 0) {
+        isGoingLeft = true;
+      }
+    });
+  }
+
+  void startGame() {
+    const duration = const Duration(milliseconds: 700);
+    Timer.periodic(duration, (Timer timer) {
+      updateGame();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,9 +84,12 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Text(
-                    'Play',
-                    style: TextStyle(color: Colors.white),
+                  GestureDetector(
+                    onTap: startGame,
+                    child: Text(
+                      'Play',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   Text(
                     'Left',
