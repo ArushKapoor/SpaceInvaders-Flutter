@@ -20,6 +20,8 @@ class _HomePageState extends State<HomePage> {
   bool toFire = false;
 
   int alienFirePos;
+  int playerFirePos;
+  bool nextFireReady = true;
 
   void updateGame() {
     setState(() {
@@ -61,6 +63,26 @@ class _HomePageState extends State<HomePage> {
         GamePieces.playerStartPos += 1;
       }
     });
+  }
+
+  void fire() {
+    if (nextFireReady) {
+      nextFireReady = false;
+      playerFirePos = game.playerPosition[0];
+      const duration = const Duration(milliseconds: 150);
+      Timer.periodic(duration, (Timer timer) {
+        setState(() {
+          game = new GamePieces();
+          if (playerFirePos >= 0) {
+            playerFirePos -= 20;
+          }
+          if (playerFirePos < 0) {
+            nextFireReady = true;
+            timer.cancel();
+          }
+        });
+      });
+    }
   }
 
   void startGame() {
@@ -115,6 +137,9 @@ class _HomePageState extends State<HomePage> {
                     } else {
                       color = Colors.grey[900];
                     }
+                    if (playerFirePos == index) {
+                      color = Colors.red;
+                    }
                     return Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: Container(
@@ -147,9 +172,12 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
-                  Text(
-                    'Up',
-                    style: TextStyle(color: Colors.white),
+                  GestureDetector(
+                    onTap: fire,
+                    child: Text(
+                      'Up',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
