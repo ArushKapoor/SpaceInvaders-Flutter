@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:space_invaders/Utilities/GamePieces.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'home_page';
@@ -10,7 +9,63 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static GamePieces game = new GamePieces();
+  static int alienStartPos = 50;
+  List<int> alienPosition = [
+    alienStartPos,
+    alienStartPos + 1,
+    alienStartPos + 2,
+    alienStartPos + 3,
+    alienStartPos + 4,
+    alienStartPos + 5,
+    alienStartPos + 6,
+    alienStartPos - 20,
+    alienStartPos - 20 + 1,
+    alienStartPos - 20 + 2,
+    alienStartPos - 20 + 3,
+    alienStartPos - 20 + 4,
+    alienStartPos - 20 + 5,
+    alienStartPos - 20 + 6,
+  ];
+
+  static int playerStartPos = 489;
+  List<int> playerPosition = [
+    playerStartPos,
+    playerStartPos + 1,
+    playerStartPos + 2,
+    playerStartPos + 3,
+    playerStartPos + 20,
+    playerStartPos + 20 + 1,
+    playerStartPos + 20 + 2,
+    playerStartPos + 20 + 3,
+  ];
+
+  static int shieldStartPos = 382;
+  List<int> shieldPosition = [
+    shieldStartPos,
+    shieldStartPos + 1,
+    shieldStartPos + 2,
+    shieldStartPos + 3,
+    shieldStartPos + 20,
+    shieldStartPos + 20 + 1,
+    shieldStartPos + 20 + 2,
+    shieldStartPos + 20 + 3,
+    shieldStartPos + 6,
+    shieldStartPos + 7,
+    shieldStartPos + 8,
+    shieldStartPos + 9,
+    shieldStartPos + 20 + 6,
+    shieldStartPos + 20 + 7,
+    shieldStartPos + 20 + 8,
+    shieldStartPos + 20 + 9,
+    shieldStartPos + 12,
+    shieldStartPos + 13,
+    shieldStartPos + 14,
+    shieldStartPos + 15,
+    shieldStartPos + 20 + 12,
+    shieldStartPos + 20 + 13,
+    shieldStartPos + 20 + 14,
+    shieldStartPos + 20 + 15
+  ];
 
   Color color;
 
@@ -25,16 +80,18 @@ class _HomePageState extends State<HomePage> {
 
   void updateGame() {
     setState(() {
-      game = new GamePieces();
-
       if (isGoingLeft) {
-        GamePieces.alienStartPos -= 1;
+        for (int i = 0; i < alienPosition.length; i++) {
+          alienPosition[i] -= 1;
+        }
       } else {
-        GamePieces.alienStartPos += 1;
+        for (int i = 0; i < alienPosition.length; i++) {
+          alienPosition[i] += 1;
+        }
       }
-      if ((game.alienPosition[0] - 1) % 20 == 0) {
+      if (alienPosition[0] % 20 == 0) {
         isGoingLeft = false;
-      } else if ((game.alienPosition.last + 2) % 20 == 0) {
+      } else if ((alienPosition.last + 1) % 20 == 0) {
         isGoingLeft = true;
       }
     });
@@ -44,23 +101,27 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       alienFirePos += 20;
       if (alienFirePos > 540) {
-        alienFirePos = game.alienPosition[0];
+        alienFirePos = alienPosition[0];
       }
     });
   }
 
   void moveLeft() {
     setState(() {
-      if (game.playerPosition[0] % 20 != 0) {
-        GamePieces.playerStartPos -= 1;
+      if (playerPosition[0] % 20 != 0) {
+        for (int i = 0; i < playerPosition.length; i++) {
+          playerPosition[i] -= 1;
+        }
       }
     });
   }
 
   void moveRight() {
     setState(() {
-      if ((game.playerPosition.last + 1) % 20 != 0) {
-        GamePieces.playerStartPos += 1;
+      if ((playerPosition.last + 1) % 20 != 0) {
+        for (int i = 0; i < playerPosition.length; i++) {
+          playerPosition[i] += 1;
+        }
       }
     });
   }
@@ -68,11 +129,10 @@ class _HomePageState extends State<HomePage> {
   void fire() {
     if (nextFireReady) {
       nextFireReady = false;
-      playerFirePos = game.playerPosition[0];
+      playerFirePos = playerPosition[0];
       const duration = const Duration(milliseconds: 150);
       Timer.periodic(duration, (Timer timer) {
         setState(() {
-          game = new GamePieces();
           if (playerFirePos >= 0) {
             playerFirePos -= 20;
           }
@@ -88,7 +148,7 @@ class _HomePageState extends State<HomePage> {
   void startGame() {
     const duration = const Duration(milliseconds: 700);
     const fireDuration = const Duration(milliseconds: 200);
-    alienFirePos = game.alienPosition[0];
+    alienFirePos = alienPosition[0];
 
     Timer.periodic(fireDuration, (Timer timer) {
       alienFire();
@@ -96,14 +156,6 @@ class _HomePageState extends State<HomePage> {
 
     Timer.periodic(duration, (Timer timer) {
       updateGame();
-      if (toMoveLeft) {
-        moveLeft();
-        toMoveLeft = false;
-      }
-      if (toMoveRight) {
-        moveRight();
-        toMoveRight = false;
-      }
     });
   }
 
@@ -124,12 +176,12 @@ class _HomePageState extends State<HomePage> {
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 20),
                   itemBuilder: (BuildContext context, int index) {
-                    if (game.alienPosition.contains(index) ||
+                    if (alienPosition.contains(index) ||
                         alienFirePos == index) {
                       color = Colors.green;
-                    } else if (game.playerPosition.contains(index) ||
-                        game.shieldPosition.contains(index)) {
-                      if (game.playerPosition[0] == index) {
+                    } else if (playerPosition.contains(index) ||
+                        shieldPosition.contains(index)) {
+                      if (playerPosition[0] == index) {
                         color = Colors.red;
                       } else {
                         color = Colors.white;
@@ -164,9 +216,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      toMoveLeft = true;
-                    },
+                    onTap: moveLeft,
                     child: Text(
                       'Left',
                       style: TextStyle(color: Colors.white),
@@ -180,9 +230,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      toMoveRight = true;
-                    },
+                    onTap: moveRight,
                     child: Text(
                       'Right',
                       style: TextStyle(color: Colors.white),
