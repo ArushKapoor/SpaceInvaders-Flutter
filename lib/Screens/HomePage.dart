@@ -135,14 +135,47 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           if (playerFirePos >= 0) {
             playerFirePos -= 20;
+            updateDamage();
           }
-          if (playerFirePos < 0) {
+          if (playerFirePos < 0 || nextFireReady) {
             nextFireReady = true;
             timer.cancel();
           }
         });
       });
     }
+  }
+
+  void updateDamage() {
+    setState(() {
+      if (shieldPosition.length > 0 && shieldPosition.contains(alienFirePos)) {
+        int index = shieldPosition.indexOf(alienFirePos);
+        shieldPosition.removeAt(index);
+        alienFirePos = alienPosition[0];
+      }
+      if (playerPosition.length > 0 && playerPosition.contains(alienFirePos)) {
+        int index = playerPosition.indexOf(alienFirePos);
+        playerPosition.removeAt(index);
+        alienFirePos = alienPosition[0];
+      }
+      if (shieldPosition.length > 0 && shieldPosition.contains(playerFirePos)) {
+        int index = shieldPosition.indexOf(playerFirePos);
+        shieldPosition.removeAt(index);
+        nextFireReady = true;
+        playerFirePos = playerPosition[0];
+      }
+      if (alienPosition.length > 0 && alienPosition.contains(playerFirePos)) {
+        int index = alienPosition.indexOf(playerFirePos);
+        alienPosition.removeAt(index);
+        nextFireReady = true;
+        playerFirePos = playerPosition[0];
+      }
+      if (alienFirePos == playerFirePos) {
+        alienFirePos = alienPosition[0];
+        nextFireReady = true;
+        playerFirePos = playerPosition[0];
+      }
+    });
   }
 
   void startGame() {
@@ -152,6 +185,7 @@ class _HomePageState extends State<HomePage> {
 
     Timer.periodic(fireDuration, (Timer timer) {
       alienFire();
+      updateDamage();
     });
 
     Timer.periodic(duration, (Timer timer) {
