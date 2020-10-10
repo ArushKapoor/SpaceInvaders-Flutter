@@ -76,7 +76,71 @@ class _HomePageState extends State<HomePage> {
 
   int alienFirePos;
   int playerFirePos;
+
   bool nextFireReady = true;
+  bool hasPlayerWon = false;
+  bool isGameOver = false;
+  bool isPieceAcross;
+
+  void createBoard() {
+    alienStartPos = 50;
+    alienPosition = [
+      alienStartPos,
+      alienStartPos + 1,
+      alienStartPos + 2,
+      alienStartPos + 3,
+      alienStartPos + 4,
+      alienStartPos + 5,
+      alienStartPos + 6,
+      alienStartPos - 20,
+      alienStartPos - 20 + 1,
+      alienStartPos - 20 + 2,
+      alienStartPos - 20 + 3,
+      alienStartPos - 20 + 4,
+      alienStartPos - 20 + 5,
+      alienStartPos - 20 + 6,
+    ];
+
+    playerStartPos = 489;
+    playerPosition = [
+      playerStartPos,
+      playerStartPos + 1,
+      playerStartPos + 2,
+      playerStartPos + 3,
+      playerStartPos + 20,
+      playerStartPos + 20 + 1,
+      playerStartPos + 20 + 2,
+      playerStartPos + 20 + 3,
+    ];
+
+    shieldStartPos = 382;
+    shieldPosition = [
+      shieldStartPos,
+      shieldStartPos + 1,
+      shieldStartPos + 2,
+      shieldStartPos + 3,
+      shieldStartPos + 20,
+      shieldStartPos + 20 + 1,
+      shieldStartPos + 20 + 2,
+      shieldStartPos + 20 + 3,
+      shieldStartPos + 6,
+      shieldStartPos + 7,
+      shieldStartPos + 8,
+      shieldStartPos + 9,
+      shieldStartPos + 20 + 6,
+      shieldStartPos + 20 + 7,
+      shieldStartPos + 20 + 8,
+      shieldStartPos + 20 + 9,
+      shieldStartPos + 12,
+      shieldStartPos + 13,
+      shieldStartPos + 14,
+      shieldStartPos + 15,
+      shieldStartPos + 20 + 12,
+      shieldStartPos + 20 + 13,
+      shieldStartPos + 20 + 14,
+      shieldStartPos + 20 + 15
+    ];
+  }
 
   void updateGame() {
     setState(() {
@@ -89,10 +153,17 @@ class _HomePageState extends State<HomePage> {
           alienPosition[i] += 1;
         }
       }
-      if (alienPosition[0] % 20 == 0) {
-        isGoingLeft = false;
-      } else if ((alienPosition.last + 1) % 20 == 0) {
-        isGoingLeft = true;
+      for (int i = 0; i < alienPosition.length; i++) {
+        if (alienPosition[i] % 20 == 0) {
+          isGoingLeft = false;
+          break;
+        }
+      }
+      for (int i = 0; i < alienPosition.length; i++) {
+        if ((alienPosition[i] + 1) % 20 == 0) {
+          isGoingLeft = true;
+          break;
+        }
       }
     });
   }
@@ -107,8 +178,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void moveLeft() {
+    isPieceAcross = false;
     setState(() {
-      if (playerPosition[0] % 20 != 0) {
+      for (int i = 0; i < playerPosition.length; i++) {
+        if (playerPosition[i] % 20 == 0) {
+          isPieceAcross = true;
+          break;
+        }
+      }
+      if (!isPieceAcross) {
         for (int i = 0; i < playerPosition.length; i++) {
           playerPosition[i] -= 1;
         }
@@ -117,8 +195,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void moveRight() {
+    isPieceAcross = false;
     setState(() {
-      if ((playerPosition.last + 1) % 20 != 0) {
+      for (int i = 0; i < playerPosition.length; i++) {
+        if ((playerPosition[i] + 1) % 20 == 0) {
+          isPieceAcross = true;
+          break;
+        }
+      }
+      if (!isPieceAcross) {
         for (int i = 0; i < playerPosition.length; i++) {
           playerPosition[i] += 1;
         }
@@ -162,23 +247,64 @@ class _HomePageState extends State<HomePage> {
         int index = shieldPosition.indexOf(playerFirePos);
         shieldPosition.removeAt(index);
         nextFireReady = true;
-        playerFirePos = playerPosition[0];
+        playerFirePos = -1;
       }
       if (alienPosition.length > 0 && alienPosition.contains(playerFirePos)) {
         int index = alienPosition.indexOf(playerFirePos);
         alienPosition.removeAt(index);
         nextFireReady = true;
-        playerFirePos = playerPosition[0];
+        playerFirePos = -1;
       }
-      if (alienFirePos == playerFirePos) {
+      if (alienPosition.length > 0 && alienFirePos == playerFirePos) {
         alienFirePos = alienPosition[0];
         nextFireReady = true;
-        playerFirePos = playerPosition[0];
+        playerFirePos = -1;
       }
     });
   }
 
+  bool checkGameOver() {
+    if (playerPosition.length == 0) {
+      hasPlayerWon = false;
+      return true;
+    } else if (alienPosition.length == 0) {
+      hasPlayerWon = true;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void gameOver() {
+    String message;
+    if (hasPlayerWon) {
+      message = 'YOU WON!';
+    } else {
+      message = 'YOU LOST!';
+    }
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              message,
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  startGame();
+                },
+                child: Text('Play Again'),
+              ),
+            ],
+          );
+        });
+  }
+
   void startGame() {
+    createBoard();
     const duration = const Duration(milliseconds: 700);
     const fireDuration = const Duration(milliseconds: 200);
     alienFirePos = alienPosition[0];
@@ -186,9 +312,16 @@ class _HomePageState extends State<HomePage> {
     Timer.periodic(fireDuration, (Timer timer) {
       alienFire();
       updateDamage();
+      if (checkGameOver()) {
+        gameOver();
+        timer.cancel();
+      }
     });
 
     Timer.periodic(duration, (Timer timer) {
+      if (checkGameOver()) {
+        timer.cancel();
+      }
       updateGame();
     });
   }
@@ -211,11 +344,12 @@ class _HomePageState extends State<HomePage> {
                       crossAxisCount: 20),
                   itemBuilder: (BuildContext context, int index) {
                     if (alienPosition.contains(index) ||
-                        alienFirePos == index) {
+                        alienFirePos == index && !checkGameOver()) {
                       color = Colors.green;
-                    } else if (playerPosition.contains(index) ||
-                        shieldPosition.contains(index)) {
-                      if (playerPosition[0] == index) {
+                    } else if ((playerPosition.contains(index) ||
+                            shieldPosition.contains(index)) &&
+                        !checkGameOver()) {
+                      if (playerPosition[0] == index && !checkGameOver()) {
                         color = Colors.red;
                       } else {
                         color = Colors.white;
@@ -223,7 +357,7 @@ class _HomePageState extends State<HomePage> {
                     } else {
                       color = Colors.grey[900];
                     }
-                    if (playerFirePos == index) {
+                    if (playerFirePos == index && !checkGameOver()) {
                       color = Colors.red;
                     }
                     return Padding(
