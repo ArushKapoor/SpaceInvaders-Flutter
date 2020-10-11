@@ -9,6 +9,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Timer timer1, timer2, timer3;
   static int alienStartPos = 50;
   List<int> alienPosition = [
     alienStartPos,
@@ -81,6 +82,7 @@ class _HomePageState extends State<HomePage> {
   bool hasPlayerWon = false;
   bool isGameOver = false;
   bool isPieceAcross;
+  bool hasGameStarted = false;
 
   void createBoard() {
     alienStartPos = 50;
@@ -217,6 +219,7 @@ class _HomePageState extends State<HomePage> {
       playerFirePos = playerPosition[0];
       const duration = const Duration(milliseconds: 150);
       Timer.periodic(duration, (Timer timer) {
+        timer1 = timer;
         setState(() {
           if (playerFirePos >= 0) {
             playerFirePos -= 20;
@@ -310,6 +313,7 @@ class _HomePageState extends State<HomePage> {
     alienFirePos = alienPosition[0];
 
     Timer.periodic(fireDuration, (Timer timer) {
+      timer2 = timer;
       alienFire();
       updateDamage();
       if (checkGameOver()) {
@@ -319,6 +323,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     Timer.periodic(duration, (Timer timer) {
+      timer3 = timer;
       if (checkGameOver()) {
         timer.cancel();
       }
@@ -327,10 +332,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    timer1.cancel();
+    timer2.cancel();
+    timer3.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final _height = MediaQuery.of(context).size.height;
     // print(MediaQuery.of(context).devicePixelRatio);
     final _width = MediaQuery.of(context).size.width;
+
+    if (!hasGameStarted) {
+      startGame();
+      hasGameStarted = true;
+    }
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -376,13 +395,6 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  GestureDetector(
-                    onTap: startGame,
-                    child: Text(
-                      'Play',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
                   GestureDetector(
                     onTap: moveLeft,
                     child: Text(

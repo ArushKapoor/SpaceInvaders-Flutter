@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:space_invaders/Screens/HomePage.dart';
+import 'package:space_invaders/Screens/IntroPage.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,9 +12,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {
+        IntroPage.id: (context) => IntroPage(),
         HomePage.id: (context) => HomePage(),
       },
-      initialRoute: HomePage.id,
+      initialRoute: IntroPage.id,
     );
   }
 }
