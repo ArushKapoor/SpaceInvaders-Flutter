@@ -391,31 +391,61 @@ class _HomePageState extends State<HomePage> {
                   }),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(vertical: _height * 0.05),
+              padding: EdgeInsets.symmetric(vertical: _height * 0.03),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   GestureDetector(
                     onTap: moveLeft,
-                    child: Text(
-                      'Left',
-                      style: TextStyle(color: Colors.white),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Icon(
+                          Icons.arrow_left,
+                          color: Colors.white,
+                          size: _height * 0.06,
+                        ),
+                      ),
                     ),
                   ),
                   GestureDetector(
                     onTap: fire,
-                    child: Text(
-                      'Up',
-                      style: TextStyle(color: Colors.white),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Icon(
+                          Icons.arrow_drop_up,
+                          color: Colors.white,
+                          size: _height * 0.06,
+                        ),
+                      ),
                     ),
                   ),
                   GestureDetector(
                     onTap: moveRight,
-                    child: Text(
-                      'Right',
-                      style: TextStyle(color: Colors.white),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Icon(
+                          Icons.arrow_right,
+                          color: Colors.white,
+                          size: _height * 0.06,
+                        ),
+                      ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
